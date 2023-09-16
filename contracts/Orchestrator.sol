@@ -4,17 +4,22 @@ pragma solidity ^0.8.0;
 
 contract UrlEmitter {
     string[] public urls;
+    uint256 public currentIndex;
 
-    event UrlEmitted(string url);
+    event UrlEmitted(address indexed sender, string url);
 
     constructor(string[] memory initialUrls) {
+        require(initialUrls.length > 0, "Initial Nodes array must not be empty");
         urls = initialUrls;
+        currentIndex = 0;
     }
 
-    function emitRandomUrl() public {
-        require(urls.length > 0, "No URLs available");
-        uint256 randomIndex = uint256(keccak256(abi.encodePacked(block.timestamp, msg.sender))) % urls.length;
-        string memory randomUrl = urls[randomIndex];
-        emit UrlEmitted(randomUrl);
+    function emitNextNode() public {
+        require(urls.length > 0, "No Nodes available");
+
+        string memory nextUrl = urls[currentIndex];
+        emit UrlEmitted(msg.sender, nextUrl);
+
+        currentIndex = (currentIndex + 1) % urls.length;
     }
 }
